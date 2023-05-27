@@ -196,7 +196,7 @@ public:
     }
     inline void dump() const
     {
-        SVFUtil::outs() << "statement " << *(this->curloc)  << ", var " << this->cur << "\n";
+        SVFUtil::outs() << "statement!! " << *(this->curloc)  << ", var " << this->cur << "\n";
     }
 };
 
@@ -361,7 +361,7 @@ public:
     {
         std::string str;
         std::stringstream rawstr(str);
-        rawstr << "[:";
+        rawstr << "yoohoo[:";
         for(CallStrCxt::const_iterator it = context.begin(), eit = context.end(); it!=eit; ++it)
         {
             rawstr << *it << " ";
@@ -465,8 +465,8 @@ public:
     }
     inline void dump() const
     {
-        SVFUtil::outs() << "statement " << *(this->curloc)  << ", var " << this->cur << " ";
-        SVFUtil::outs() << this->context.toString()  <<"\n";
+        SVFUtil::outs() << "statement?? " << *(this->curloc)  << ", var " << this->cur << " ";
+        //SVFUtil::outs() << this->context.toString()  <<"\n";
     }
 };
 

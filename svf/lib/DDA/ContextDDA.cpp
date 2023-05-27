@@ -84,6 +84,7 @@ const CxtPtSet& ContextDDA::computeDDAPts(const CxtVar& var)
 
     // start DDA analysis
     DOTIMESTAT(double start = DDAStat::getClk(true));
+    std::cout<<"start findPT "<<dpm.getLoc()->getId()<<"\n";
     const CxtPtSet& cpts = findPT(dpm);
     DOTIMESTAT(ddaStat->_AnaTimePerQuery = DDAStat::getClk(true) - start);
     DOTIMESTAT(ddaStat->_TotalTimeOfQueries += ddaStat->_AnaTimePerQuery);

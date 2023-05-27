@@ -432,7 +432,7 @@ template <> struct Hash<NodePair>
     }
 };
 
-#if !defined NDBUG && defined USE_SVF_DBOUT
+//#if !defined NDBUG && defined USE_SVF_DBOUT
 // TODO: This comes from the following link
 // https://github.com/llvm/llvm-project/blob/75e33f71c2dae584b13a7d1186ae0a038ba98838/llvm/include/llvm/Support/Debug.h#L64
 // The original LLVM implementation makes use of type. But we can get that info,
@@ -440,14 +440,7 @@ template <> struct Hash<NodePair>
 #    define SVF_DEBUG_WITH_TYPE(TYPE, X)                                       \
         do                                                                     \
         {                                                                      \
-            X;                                                                 \
         } while (false)
-#else
-#    define SVF_DEBUG_WITH_TYPE(TYPE, X)                                       \
-        do                                                                     \
-        {                                                                      \
-        } while (false)
-#endif
 
 /// LLVM debug macros, define type of your DBUG model of each pass
 #define DBOUT(TYPE, X) SVF_DEBUG_WITH_TYPE(TYPE, X)

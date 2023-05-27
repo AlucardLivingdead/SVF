@@ -137,19 +137,33 @@ public:
     /// Compute points-to
     virtual const CPtSet& findPT(const DPIm& dpm)
     {
-
+	std::cout<<"###temp:findPT "<<dpm.getLoc()->getId()<<"\n";
         if(isbkVisited(dpm))
         {
             const CPtSet& cpts = getCachedPointsTo(dpm);
-            DBOUT(DDDA, SVFUtil::outs() << "\t already backward visited dpm: ");
-            DBOUT(DDDA, dpm.dump());
-            DBOUT(DDDA, SVFUtil::outs() << "\t return points-to: ");
-            DBOUT(DDDA, dumpCPtSet(cpts));
+            //DBOUT(DDDA, SVFUtil::outs() << "\t already backward visited dpm: ");
+		//std::cout<<"\t already backward visited dpm: ";
+		std::cout<<"##uc "<<dpm.getLoc()->getId()<<": ";
+		//std::cout<<"=====dpm.dump=====\n";
+		//dpm.dump();
+		//std::cout<<"=================\n";
+		//std::cout<<"\t return points-to: ";
+		dumpCPtSet(cpts);
+            //DBOUT(DDDA, dpm.dump());
+            //DBOUT(DDDA, SVFUtil::outs() << "\t return points-to: ");
+            //DBOUT(DDDA, dumpCPtSet(cpts));
             return cpts;
         }
 
-        DBOUT(DDDA, SVFUtil::outs() << "\t backward visit dpm: ");
-        DBOUT(DDDA, dpm.dump());
+        //DBOUT(DDDA, SVFUtil::outs() << "\t backward visit dpm: ");
+	//std::cout<<"\t backward visit dpm: ";
+	//std::cout<<"=======dpm.dump=======\n";
+	//std::cout<<"\t fxxk your ass id "<<dpm.getCurNodeID()<<"\n";
+	//dpm.dump();
+	//std::cout<<"=======";
+
+        //DBOUT(DDDA, dpm.dump());
+
         markbkVisited(dpm);
         addDpmToLoc(dpm);
 
@@ -162,7 +176,11 @@ public:
             /// Add successors of current stmt if its pts has been changed.
             updateCachedPointsTo(dpm, pts);
         }
-        return getCachedPointsTo(dpm);
+
+	const CPtSet& temp=getCachedPointsTo(dpm);
+	//std::cout<<"findpt result for: "<<dpm.getLoc()->getId();
+	//dumpCPtSet(temp);
+        return temp;
     }
 
 protected:
@@ -181,6 +199,7 @@ protected:
                  FormalParmSVFGNode, ActualRetSVFGNode,
                  FormalRetSVFGNode, NullPtrSVFGNode>(node))
         {
+	    std::cout<<"yoohoo2 "<<dpm.getLoc()->getId()<<"\n";
             backtraceAlongDirectVF(pts,dpm);
         }
         else if(SVFUtil::isa<GepSVFGNode>(node))
@@ -192,46 +211,65 @@ protected:
         else if(SVFUtil::isa<LoadSVFGNode>(node))
         {
             CPtSet loadpts;
+	    //std::cout<<"---------start new pt comp: " << dpm.getCurNodeID() <<"-------\n";
             startNewPTCompFromLoadSrc(loadpts,dpm);
+	    //std::cout<<"post load?" << dpm.getCurNodeID() <<"\n";
             for(typename CPtSet::iterator it = loadpts.begin(), eit = loadpts.end(); it!=eit; ++it)
             {
+		std::cout<<"#post load? "<<dpm.getLoc()->getId()<<"\n";
                 backtraceAlongIndirectVF(pts,getDPImWithOldCond(dpm,*it,node));
+		//std::cout<<"#end postLoad "<<dpm.getLoc()->getId()<<"\n";
             }
+	    //std::cout<<"#end postLoad2\n";
         }
         else if(SVFUtil::isa<StoreSVFGNode>(node))
         {
             if(isMustAlias(getLoadDpm(dpm),dpm))
             {
-                DBOUT(DDDA, SVFUtil::outs() << "+++must alias for load and store:");
-                DBOUT(DDDA, getLoadDpm(dpm).dump());
-                DBOUT(DDDA, dpm.dump());
-                DBOUT(DDDA, SVFUtil::outs() << "+++\n");
+                //DBOUT(DDDA, SVFUtil::outs() << "+++must alias for load and store:");
+		std::cout<<"++must alias for load and store:";
+		//std::cout<<"=======getLoadPpm.dump======\n";
+		getLoadDpm(dpm).dump();
+		//std::cout<<"======dpm.dump======\n";
+		dpm.dump();
+		std::cout<<"+++\n";
+                //DBOUT(DDDA, getLoadDpm(dpm).dump());
+                //DBOUT(DDDA, dpm.dump());
+                //DBOUT(DDDA, SVFUtil::outs() << "+++\n");
                 DOSTAT(ddaStat->_NumOfMustAliases++);
                 backtraceToStoreSrc(pts,dpm);
             }
             else
             {
                 CPtSet storepts;
+		//std::cout<<"-------start new pt comp: "<<dpm.getCurNodeID()<<"-------\n";
                 startNewPTCompFromStoreDst(storepts,dpm);
+		//std::cout<<"-------end new pt comp: "<<dpm.getCurNodeID()<<"---------\n";
+
                 for(typename CPtSet::iterator it = storepts.begin(), eit = storepts.end(); it!=eit; ++it)
                 {
+		    std::cout<<"#post store0 loop\n";
                     if(propagateViaObj(*it,getLoadCVar(dpm)))
                     {
+			std::cout<<"post store1: "<<dpm.getLoc()->getId()<<"\n";
                         backtraceToStoreSrc(pts,getDPImWithOldCond(dpm,*it,node));
 
                         if(isStrongUpdate(storepts,SVFUtil::cast<StoreSVFGNode>(node)))
                         {
-                            DBOUT(DDDA, SVFUtil::outs() << "backward strong update for obj " << dpm.getCurNodeID() << "\n");
+                            //DBOUT(DDDA, SVFUtil::outs() << "backward strong update for obj " << dpm.getCurNodeID() << "\n");
+				std::cout<<"backward strong update for obj "<<dpm.getLoc()->getId()<<"\n";
                             DOSTAT(addSUStat(dpm,node);)
                         }
                         else
                         {
                             DOSTAT(rmSUStat(dpm,node);)
+			    std::cout<<"post store12: "<<dpm.getLoc()->getId()<<"\n";
                             backtraceAlongIndirectVF(pts,getDPImWithOldCond(dpm,*it,node));
                         }
                     }
                     else
                     {
+			std::cout<<"post store2: "<<dpm.getLoc()->getId()<<"\n";
                         backtraceAlongIndirectVF(pts,dpm);
                     }
                 }
@@ -259,11 +297,14 @@ protected:
         /// callgraph scc detection for local variable in recursion
         if(!newIndirectEdges.empty())
             _callGraphSCC->find();
+	//std::cout<<"-------------start recompute: "<<dpm.getCurNodeID()<<"------\n";
         reComputeForEdges(dpm,newIndirectEdges,true);
 
         /// re-compute for transitive closures
         SVFGEdgeSet edgeSet(dpm.getLoc()->getOutEdges());
         reComputeForEdges(dpm,edgeSet,false);
+
+	//std::cout<<"------------end recompute: "<<dpm.getCurNodeID()<<"-------\n";
     }
 
     /// Traverse along out edges to find all nodes which may be affected by locDPM.
@@ -285,22 +326,34 @@ protected:
                 {
                     if(dstDpm.getCurNodeID() == dpm.getCurNodeID())
                     {
-                        DBOUT(DDDA,SVFUtil::outs() << "\t Recompute, forward from :");
-                        DBOUT(DDDA, dpm.dump());
+                        //DBOUT(DDDA,SVFUtil::outs() << "\t Recompute, forward from :");
+                        //DBOUT(DDDA, dpm.dump());
+			//std::cout<<"\t Recompute, forward from :";
+			//std::cout<<"=====dpm.dump=====\n";
+			//dpm.dump();
+			//std::cout<<"============\n";
                         DOSTAT(ddaStat->_NumOfStepInCycle++);
                         clearbkVisited(dstDpm);
+			std::cout<<"recompute: clear visited "<<dstDpm.getLoc()->getId()<<"\n";
                         findPT(dstDpm);
                     }
                 }
                 else
                 {
-                    if(indirectCall)
-                        DBOUT(DDDA,SVFUtil::outs() << "\t Recompute for indirect call from :");
+                    /*if(indirectCall)
+                        //DBOUT(DDDA,SVFUtil::outs() << "\t Recompute for indirect call from :");
+			std::cout<<"\t Recompute for indirect call from :";
                     else
-                        DBOUT(DDDA,SVFUtil::outs() << "\t Recompute forward from :");
-                    DBOUT(DDDA, dpm.dump());
+                        //DBOUT(DDDA,SVFUtil::outs() << "\t Recompute forward from :");
+			std::cout<<"\t Recompute forward from :";*/
+                    //DBOUT(DDDA, dpm.dump());
+			//std::cout<<"======dpm.dump====\n";
+			//dpm.dump();
+			//std::cout<<"===========\n";
+
                     DOSTAT(ddaStat->_NumOfStepInCycle++);
                     clearbkVisited(dstDpm);
+		    std::cout<<"recompute: clear visited "<<dstDpm.getLoc()->getId()<<"\n";
                     findPT(dstDpm);
                 }
             }
@@ -350,6 +403,8 @@ protected:
         if (_pag->isConstantObj(obj) || _pag->isNonPointerObj(obj))
             return;
         const SVFGEdgeSet edgeSet(node->getInEdges());
+
+	std::cout<<"#backtrace indir: "<<oldDpm.getLoc()->getId()<<"\n";
         for (SVFGNode::const_iterator it = edgeSet.begin(), eit = edgeSet.end(); it != eit; ++it)
         {
             if(const IndirectSVFGEdge* indirEdge = SVFUtil::dyn_cast<IndirectSVFGEdge>(*it))
@@ -357,12 +412,17 @@ protected:
                 const NodeBS& guard = indirEdge->getPointsTo();
                 if(guard.test(obj))
                 {
-                    DBOUT(DDDA, SVFUtil::outs() << "\t\t==backtrace indirectVF svfgNode " <<
-                          indirEdge->getDstID() << " --> " << indirEdge->getSrcID() << "\n");
+                    //DBOUT(DDDA, SVFUtil::outs() << "\t\t==backtrace indirectVF svfgNode " <<
+                    //      indirEdge->getDstID() << " --> " << indirEdge->getSrcID() << "\n");
+			//!!!std::cout<<"\t\t==backtrace indirectVF svfgNode "<< indirEdge->getDstID() << "--> "<<indirEdge->getSrcID()<<"\n";
+		    std::cout<<"\tbacktrace indir: "<<indirEdge->getDstID()<<"---> "<<indirEdge->getSrcID()<<"\n";
                     backwardPropDpm(pts,oldDpm.getCurNodeID(),oldDpm,indirEdge);
                 }
+		else { std::cout<<"\t#guard failed: "<<indirEdge->getDstID()<<"--->"<<indirEdge->getSrcID()<<"\n"; }
             }
+	    //else { std::cout<<"\tnot indir: "<<(*it)->getDstID()<<"--->"<<(*it)->getSrcID()<<"\n"; }
         }
+	//std::cout<<"#end backtrace indir: "<<oldDpm.getLoc()->getId()<<"\n";
     }
     /// Backward traverse along direct value flows
     void backtraceAlongDirectVF(CPtSet& pts, const DPIm& oldDpm)
@@ -373,8 +433,10 @@ protected:
         {
             if(const DirectSVFGEdge* dirEdge = SVFUtil::dyn_cast<DirectSVFGEdge>(*it))
             {
-                DBOUT(DDDA, SVFUtil::outs() << "\t\t==backtrace directVF svfgNode " <<
-                      dirEdge->getDstID() << " --> " << dirEdge->getSrcID() << "\n");
+                //DBOUT(DDDA, SVFUtil::outs() << "\t\t==backtrace directVF svfgNode " <<
+                //      dirEdge->getDstID() << " --> " << dirEdge->getSrcID() << "\n");
+		//!!!std::cout<<"\t\t==backtrace directVF svfgNode "<<dirEdge->getDstID()<<" --> " <<dirEdge->getSrcID()<<"\n";
+		std::cout<<"\tbacktrace: "<<dirEdge->getDstID()<<"---> "<<dirEdge->getSrcID()<<"\n";
                 const SVFGNode* srcNode = dirEdge->getSrcNode();
                 backwardPropDpm(pts,getSVFG()->getLHSTopLevPtr(srcNode)->getId(),oldDpm,dirEdge);
             }
@@ -387,29 +449,34 @@ protected:
     {
         const LoadSVFGNode* load = SVFUtil::cast<LoadSVFGNode>(oldDpm.getLoc());
         const SVFGNode* loadSrc = getDefSVFGNode(load->getPAGSrcNode());
-        DBOUT(DDDA, SVFUtil::outs() << "!##start new computation from loadSrc svfgNode " <<
-              load->getId() << " --> " << loadSrc->getId() << "\n");
+        //DBOUT(DDDA, SVFUtil::outs() << "!##start new computation from loadSrc svfgNode " <<
+        //      load->getId() << " --> " << loadSrc->getId() << "\n");
+	std::cout<<"##startNew from loadSrc "<<load->getId()<<" --> "<<loadSrc->getId()<<"\n";
         const SVFGEdge* edge = getSVFG()->getIntraVFGEdge(loadSrc,load,SVFGEdge::IntraDirectVF);
         assert(edge && "Edge not found!!");
         backwardPropDpm(pts,load->getPAGSrcNodeID(),oldDpm,edge);
+	//std::cout<<"#endNew from loadSrc "<<load->getId()<<"\n";
 
     }
     inline void startNewPTCompFromStoreDst(CPtSet& pts, const DPIm& oldDpm)
     {
         const StoreSVFGNode* store = SVFUtil::cast<StoreSVFGNode>(oldDpm.getLoc());
         const SVFGNode* storeDst = getDefSVFGNode(store->getPAGDstNode());
-        DBOUT(DDDA, SVFUtil::outs() << "!##start new computation from storeDst svfgNode " <<
-              store->getId() << " --> " << storeDst->getId() << "\n");
+        //DBOUT(DDDA, SVFUtil::outs() << "!##start new computation from storeDst svfgNode " <<
+        //      store->getId() << " --> " << storeDst->getId() << "\n");
+	std::cout<<"##startNew from storeDst "<<store->getId()<<" --> "<<storeDst->getId()<<"\n";
         const SVFGEdge* edge = getSVFG()->getIntraVFGEdge(storeDst,store,SVFGEdge::IntraDirectVF);
         assert(edge && "Edge not found!!");
         backwardPropDpm(pts,store->getPAGDstNodeID(),oldDpm,edge);
+	//std::cout<<"#endNew from storeDst "<<store->getId()<<"\n";
     }
     inline void backtraceToStoreSrc(CPtSet& pts, const DPIm& oldDpm)
     {
         const StoreSVFGNode* store = SVFUtil::cast<StoreSVFGNode>(oldDpm.getLoc());
         const SVFGNode* storeSrc = getDefSVFGNode(store->getPAGSrcNode());
-        DBOUT(DDDA, SVFUtil::outs() << "++backtrace to storeSrc from svfgNode " << getLoadDpm(oldDpm).getLoc()->getId() << " to "<<
-              store->getId() << " to " << storeSrc->getId() <<"\n");
+        //DBOUT(DDDA, SVFUtil::outs() << "++backtrace to storeSrc from svfgNode " << getLoadDpm(oldDpm).getLoc()->getId() << " to "<<
+        //      store->getId() << " to " << storeSrc->getId() <<"\n"); 
+	std::cout<<"++backtrace "<< " to "<<store->getId()<<" to "<<storeSrc->getId()<<"\n";
         const SVFGEdge* edge = getSVFG()->getIntraVFGEdge(storeSrc,store,SVFGEdge::IntraDirectVF);
         assert(edge && "Edge not found!!");
         backwardPropDpm(pts,store->getPAGSrcNodeID(),oldDpm,edge);
@@ -426,7 +493,8 @@ protected:
         if(handleBKCondition(dpm,edge)==false)
         {
             DOTIMESTAT(ddaStat->_TotalTimeOfBKCondition += DDAStat::getClk(true) - start);
-            DBOUT(DDDA, SVFUtil::outs() << "\t!!! infeasible path svfgNode: " << edge->getDstID() << " --| " << edge->getSrcID() << "\n");
+            //DBOUT(DDDA, SVFUtil::outs() << "\t!!! infeasible path svfgNode: " << edge->getDstID() << " --| " << edge->getSrcID() << "\n");
+		std::cout<<"\t!!! infeasible path svfgNode: "<<edge->getDstID()<<" --| "<<edge->getSrcID()<<"\n";
             DOSTAT(ddaStat->_NumOfInfeasiblePath++);
             return;
         }
@@ -492,6 +560,7 @@ protected:
                 NodeID funPtr = _pag->getFunPtr(cbn);
                 DPIm funPtrDpm(dpm);
                 funPtrDpm.setLocVar(getSVFG()->getDefSVFGNode(_pag->getGNode(funPtr)),funPtr);
+		std::cout<<"resolveFunc "<<funPtrDpm.getLoc()->getId()<<"\n";
                 findPT(funPtrDpm);
             }
         }

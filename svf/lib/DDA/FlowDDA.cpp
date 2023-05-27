@@ -50,6 +50,7 @@ void FlowDDA::computeDDAPts(NodeID id)
 
     /// start DDA analysis
     DOTIMESTAT(double start = DDAStat::getClk(true));
+    std::cout<<"start findPT "<<dpm.getLoc()->getId()<<"\n";
     const PointsTo& pts = findPT(dpm);
     DOTIMESTAT(ddaStat->_AnaTimePerQuery = DDAStat::getClk(true) - start);
     DOTIMESTAT(ddaStat->_TotalTimeOfQueries += ddaStat->_AnaTimePerQuery);

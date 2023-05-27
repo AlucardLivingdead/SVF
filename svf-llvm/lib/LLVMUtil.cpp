@@ -1042,7 +1042,7 @@ const std::string SVFValue::toString() const
     {
         const Value* val =
             LLVMModuleSet::getLLVMModuleSet()->getLLVMValue(this);
-        rawstr << " " << *val << " ";
+        rawstr << *val << " ";
     }
     rawstr << this->getSourceLoc();
     return rawstr.str();
