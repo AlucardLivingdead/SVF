@@ -1,0 +1,174 @@
+Demand-Driven Points-to Analysis
+
+USAGE:
+  Release-build/bin/dvf [options] <input-bitcode...>
+
+OPTIONS:
+  -add-td-edge                   - Add thread SVFG edges with models: 0 Non Add Edge; 1 NonSparse; 2 All Optimisation; 3 No MHP; 4 No Alias; 5 No Lock; 6 No Read Precision.
+  -alias-check                   - Enable alias check functions
+  -all-pair-mhp                  - All pair MHP computation
+  Select pointer analysis
+    -nander                        - Standard inclusion-based analysis
+    -sander                        - Selective cycle detection inclusion-based analysis
+    -sfrander                      - Stride-based field representation includion-based analysis
+    -ander                         - Diff wave propagation inclusion-based analysis
+    -steens                        - Steensgaard's pointer analysis
+    -fspta                         - Sparse flow sensitive pointer analysis
+    -vfspta                        - Versioned sparse flow-sensitive points-to analysis
+    -type                          - Type-based fast analysis for Callgraph, SVFIR and CHA
+  -ander-time-limit              - time limit for Andersen's analyses (ignored when -fs-time-limit set)
+  -anno                          - prune annotated instructions: 0001 Thread Local; 0002 Alias; 0004 MHP.
+  -blk                           - Hanle blackhole edge
+  -brief-constraint-graph        - Dump dot graph of Constraint Graph
+  -cdaa                          - enable context-sensitivity for demand-driven analysis
+  -cflgraph                      - <Dot file as the CFLGraph input>
+  -cflsvfg                       - When explicit to true, cfl graph builder will transfer SVFG to CFL Reachability.
+  -ci-svfg                       - Reduce SVFG into a context-insensitive one
+  -clock-type                    - how time should be measured
+    =wall                          - use wall time
+    =cpu                           - use CPU time
+  -cluster-ander                 - Stage Andersen's with Steensgard's and cluster based on that
+  -cluster-fs                    - Cluster for FS/VFS with auxiliary Andersen's
+  -cluster-method                - hierarchical clustering method for objects
+    =single                        - single linkage; minimum spanning tree algorithm
+    =complete                      - complete linkage; nearest-neighbour-chain algorithm
+    =average                       - unweighted average linkage; nearest-neighbour-chain algorithm
+    =best                          - try all linkage criteria; choose best
+  -cluster-predict-occ           - try to predict which points-to sets are more important in staged analysis
+  -cluster-region-aligned        - align each region's identifiers to the native word size
+  -cluster-regioned              - cluster regions separately
+  Select alias check rule
+    -conservative                  - return MayAlias if any pta says alias
+    -veto                          - return NoAlias if any pta says no alias
+  -cpts                          - Dump conditional points-to set 
+  Select pointer analysis
+    -dfs                           - Demand-driven flow sensitive analysis
+    -cxt                           - Demand-driven context- flow- sensitive analysis
+  -cxt-bg                        - Maximum step budget of context-sensitive traversing
+  -cxt-limit                     - Source-Sink Analysis Contexts Limit
+  -cyclic-field-index            - Enable cyclic field index when generating field objects using modulus offset
+  -daa                           - Demand-Driven Alias Analysis Pass
+  -diff                          - Enable differential point-to set
+  -dref                          - Demand-driven refinement points-to analysis
+  -dreg                          - Demand-driven regular points-to analysis
+  -dump-callgraph                - Dump dot graph of Call Graph
+  -dump-cha                      - dump the class hierarchy graph
+  -dump-constraint-graph         - Dump dot graph of Constraint Graph
+  -dump-free                     - Dump use after free locations
+  -dump-icfg                     - Dump dot graph of ICFG
+  -dump-json                     - Dump the SVFIR in JSON format
+  -dump-mssa                     - Dump memory SSA
+  -dump-ocg                      - Dump dot graph of Offline Constraint Graph
+  -dump-pag                      - Dump dot graph of SVFIR
+  -dump-slice                    - Dump dot graph of Saber Slices
+  -dump-su-pts                   - Dump strong updates store
+  -dump-su-store                 - Dump strong updates store
+  -dump-tct                      - Dump dot graph of Call Graph
+  -dump-uninit-ptr               - Dump uninitialised pointers
+  -dump-uninit-var               - Dump uninitialised variables
+  -dump-vfg                      - Dump dot graph of VFG
+  -dwarn                         - Disable warning
+  -enable-tcg                    - Enable pointer analysis to use thread call graph
+  -fdaa                          - enable field-sensitivity for demand-driven analysis
+  -ff-eq-base                    - Treat base objects as their first fields
+  -field-limit                   - Maximum number of fields for field sensitive analysis
+  -flex-symmap                   - Extend exist sym map while read graph from dot if sym not in map.
+  -flow-bg                       - Maximum step budget of flow-sensitive traversing
+  -fs-time-limit                 - time limit for main phase of flow-sensitive analyses
+  -grammar                       - <Grammar textfile>
+  -graph-txt                     - graph txt file to build SVFIR
+  -human-readable                - Whether to output human-readable JSON
+  -in-cycle                      - Mark context insensitive SVFG edges due to value-flow cycles
+  -in-recur                      - Mark context insensitive SVFG edges due to function recursions
+  -inc-data                      - Enable incremental DFPTData for flow-sensitive analysis
+  -ind-call-limit                - Indirect solved call edge limit
+  -intra-lock-td-edge            - Use simple intra-procedual lock for adding SVFG edges
+  -keep-aofi                     - Keep formal-in and actual-out parameters
+  -keep-self-cycle               - How to handle self cycle edges: all, context, none
+  -ldaa                          - enable flow-sensitivity for demand-driven analysis
+  -lock-analysis                 - Run Lock Analysis
+  -lock-validation               - Print Lock Validation Results
+  -loop-analysis                 - Analyze every func and get loop info and loop bounds.
+  -loop-bound                    - Maximum number of loop
+  -malloc-only                   - Only add tainted objects for malloc
+  -marked-clocks-only            - Only measure times where explicitly marked
+  -max-cxt                       - Maximum context limit for DDA
+  -max-path                      - Maximum path limit for DDA
+  -max-step                      - Maximum steps when traversing on SVFG to identify a memory allocation wrapper
+  -max-z3-size                   - Maximum size limit for Z3 expression
+  -mem-par                       - Memory region partiion strategies (e.g., for SVFG construction)
+    =distinct                      - memory region per each object
+    =intra-disjoint                - memory regions partioned based on each function
+    =inter-disjoint                - memory regions partioned across functions
+  -merge-pwc                     - Enable PWC detection
+  -mhp-validation                - Print MHP Validation Results
+  -model-arrays                  - Modeling Gep offsets for array accesses
+  -model-consts                  - Modeling individual constant objects
+  -mssa-fun                      - Please specify which function needs to be dumped
+  -mssa-ignore-dead-fun          - Don't construct memory SSA for deadfunction
+  -node-alloc-strat              - Method of allocating (LLVM) values and memory objects as node IDs
+    =dense                         - allocate objects together [0-n] and values together [m-MAX], separately
+    =reverse-dense                 - like dense but flipped, objects are [m-MAX], values are [0-n]
+    =seq                           - allocate values and objects sequentially, intermixed (default)
+    =debug                         - allocate value and objects sequentially, intermixed, except GEP objects as offsets
+  -opt-svfg                      - Optimize SVFG to eliminate formal-in and actual-out
+  -pcg-td-edge                   - Use PCG lock for non-sparsely adding SVFG edges
+  -peg-transfer                  - When explicit to true, cfl graph builder will transfer PAG load and store edges to copy and addr.
+  -plain-mapping-fs              - Use an explicitly (not null) plain mapping for FS
+  -pocr-alias                    - When explicit to true, cfl data builder will transfer CFL graph to CFLData.
+  -pocr-hybrid                   - When explicit to true, POCRHybridSolver transfer CFL graph to internal hybird graph representation.
+  -pre-field-sensitive           - Use pre-computed field-sensitivity for later analysis
+  -print-aliases                 - Print results for all pair aliases
+  -print-all-pts                 - Print all points-to set of both top-level and address-taken variables
+  -print-cfl                     - Print ir, grammar and cflgraph for debug.
+  -print-constraint-graph        - Print Constraint Graph to Terminal
+  -print-dchg                    - print the DCHG if debug information is available
+  -print-fp                      - Print targets of indirect call site
+  -print-interlev                - Print Thread Interleaving Results
+  -print-lock                    - Print Thread Interleaving Results
+  -print-pag                     - Print SVFIR to command line
+  -print-pc                      - Print out path condition
+  -print-pts                     - Print points-to set of top-level pointers
+  -print-query-pts               - Dump queries' conditional points-to set 
+  -print-symbol-table            - Print Symbol Table to command line
+  -print-type                    - Print type
+  -pt-type                       - points-to set data structure to use in all analyses
+    =sbv                           - sparse bit-vector
+    =cbv                           - core bit-vector (dynamic bit-vector without leading and trailing 0s)
+    =bv                            - bit-vector (dynamic bit-vector without trailing 0s)
+  -ptd                           - Overarching points-to data structure
+    =mutable                       - points-to set per pointer
+    =persistent                    - points-to set ID per pointer, operations hash-consed
+  -query                         - Please specify queries by inputing their pointer ids
+  -read-ander                    - -read-ander=ir_annotator (Read Andersen's analysis results from the annotated IR, e.g., *.pre.bc) or from a text file
+  -read-json                     - Read the SVFIR in JSON format
+  -read-svfg                     - Read SVFG's analysis results from a file
+  -rp-td-edge                    - perform read precision to refine SVFG edges
+  -saber-collect-extret-globals  - Don't include pointers returned by external function during collecting globals
+  -saber-full-svfg               - When using SABER for bug detection pass, enable full svfg on top of the pointer-only one
+  -show-hidden-nodes             - Show hidden nodes on DOT Graphs (e.g., isolated node on a graph)
+  -show-ir-value                 - Show values of SVFIR (e.g., when generating dot graph)
+  -single-load                   - Count load pointer with same source operand as one query
+  -stat                          - Statistic for Pointer analysis
+  -stat-limit                    - Iteration budget for On-the-fly statistics
+  -stride-only                   - Only use single stride in LocMemoryModel
+  -svf-main                      - add svf.main()
+  -svfg                          - Generate SVFG after Andersen's Analysis
+  -svfg-with-ind-call            - Update Indirect Calls for SVFG using pre-analysis
+  -tsan-ander                    - Add TSan annotation according to Andersen
+  -tsan-fs                       - Add TSan annotation according to flow-sensitive analysis
+  -uninit-heap                   - detect uninitialized heap variables
+  -uninit-stack                  - detect uninitialized stack variables
+  -v-call-cha                    - connect virtual calls using cha
+  -valid-tests                   - Validate memory leak tests
+  -versioning-threads            - number of threads to use in the versioning phase of versioned flow-sensitive analysis
+  -vt-in-ir                      - Handle vtable in ConstantArray/ConstantStruct in SVFIRBuilder (already handled in CHA?)
+  -wpa-num                       - collect WPA FS number only 
+  -write-ander                   - -write-ander=ir_annotator (Annotated IR with Andersen's results) or write Andersen's analysis results to a user-specified text file
+  -write-svfg                    - Write SVFG's analysis results to a file
+
+  -help                          - show usage and exit
+  -h                             - show usage and exit
+
+Note: for boolean options, -name true and -name false are invalid.
+      Use -name, -name=true, or -name=false.
