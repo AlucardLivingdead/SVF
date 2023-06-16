@@ -158,7 +158,7 @@ const llvm::Instruction *getInstr(PAGNode *node, std::map<NodeID, const llvm::In
 
 std::set<NodeID> findAlias(const PAGNode *freeNode, PointerAnalysis* pta, PAG* G, std::map<NodeID, const llvm::Instruction *>cache, ICFG* icfg)
 {
-	bool check=true;
+	//bool check=true;
 	std::set<NodeID> result;
   	std::set<NodeID> result2;
 	//cout<<"alias start time "<<time(NULL)<<"\n";
@@ -169,7 +169,7 @@ std::set<NodeID> findAlias(const PAGNode *freeNode, PointerAnalysis* pta, PAG* G
 		for(PointsTo::iterator it=freePts.begin(), eit=freePts.end(); it!=eit; ++it)
                	{ 
 			const NodeSet& revPts=pta->getRevPts(*it);
-			int size=0;
+			//int size=0;
         		//cout<<"rev size? "<< revPts.count()<<"\n";
 			//cout.flush();
         		//for(Set<NodeID>::iterator it2=revPts.begin(), eit2=*revPts.end(); it2!=eit2; ++it2)
@@ -336,7 +336,7 @@ void printAllFreePts(PointerAnalysis* pta, ICFG* icfg, Module *mod, PTACallGraph
 		//cout<<"freeCount: " << freeCount<<"\n";
 		freeCount++;
 		const CallICFGNode* callBlock = It->first;
-		const Instruction* freeInst = SVFUtil::cast<Instruction>(LLVMModuleSet::getLLVMModuleSet()->getLLVMValue(callBlock->getCallSite()));
+		//const Instruction* freeInst = SVFUtil::cast<Instruction>(LLVMModuleSet::getLLVMModuleSet()->getLLVMValue(callBlock->getCallSite()));
 		//const llvm::Instruction *freeInst=It->first->getCallSite();
 		ICFGNode *sourceNode=(ICFGNode *)callBlock;
 		//icfg->getICFGNode(fuckInstr);
@@ -368,7 +368,7 @@ void printAllFreePts(PointerAnalysis* pta, ICFG* icfg, Module *mod, PTACallGraph
 			//cout<<"instr in func? ";
 			//printICFGNodeFunc(sourceNode);
 
-			const SVFFunction *freeFunc=sourceNode->getFun();
+			//const SVFFunction *freeFunc=sourceNode->getFun();
 
 			//cout<<"\n";
 			//cout<<"found free, start time "<<time(NULL)<<"\n";
@@ -542,9 +542,9 @@ void dumpICFG(SVFModule *mod, ICFG *icfg, PTACallGraph* callgraph)
         {
                 ICFGNode* root=icfg->getFunEntryICFGNode(fun);
                 PTACallGraphNode* ptaNode=callgraph->getCallGraphNode(fun);
-		SVFValue *fxxkValue=(SVFValue *)fun;
-		const Function* func =
-		SVFUtil::cast<Function>(LLVMModuleSet::getLLVMModuleSet()->getLLVMValue(fxxkValue));
+		//SVFValue *fxxkValue=(SVFValue *)fun;
+		//const Function* func =
+		//SVFUtil::cast<Function>(LLVMModuleSet::getLLVMModuleSet()->getLLVMValue(fxxkValue));
 		//printf("====func name: %s====\n", dumpFunc(func).c_str());
 		cout<<"funcRec: "<<root->getId()<<"\n";
                 totalFound+=traverseOnICFG(icfg, root, ptaNode);
@@ -589,7 +589,7 @@ void traverseOnVFG(const SVFG* vfg, Value* val)
     /// Collect all LLVM Values
     for(Set<const VFGNode*>::const_iterator it = visited.begin(), eit = visited.end(); it!=eit; ++it)
     {
-        const VFGNode* node = *it;
+        //const VFGNode* node = *it;
         /// can only query VFGNode involving top-level pointers (starting with % or @ in LLVM IR)
         /// PAGNode* pNode = vfg->getLHSTopLevPtr(node);
         /// Value* val = pNode->getValue();
